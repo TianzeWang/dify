@@ -27,7 +27,7 @@ from core.prompt.simple_prompt_transform import ModelMode, SimplePromptTransform
 from models.model import App, AppMode, Message, MessageAnnotation
 
 if TYPE_CHECKING:
-    from core.file.file_obj import FileVar
+    from core.file.models import File
 
 
 class AppRunner:
@@ -37,7 +37,7 @@ class AppRunner:
         model_config: ModelConfigWithCredentialsEntity,
         prompt_template_entity: PromptTemplateEntity,
         inputs: dict[str, str],
-        files: list["FileVar"],
+        files: list["File"],
         query: Optional[str] = None,
     ) -> int:
         """
@@ -137,7 +137,7 @@ class AppRunner:
         model_config: ModelConfigWithCredentialsEntity,
         prompt_template_entity: PromptTemplateEntity,
         inputs: dict[str, str],
-        files: list["FileVar"],
+        files: list["File"],
         query: Optional[str] = None,
         context: Optional[str] = None,
         memory: Optional[TokenBufferMemory] = None,
@@ -309,7 +309,7 @@ class AppRunner:
             if not prompt_messages:
                 prompt_messages = result.prompt_messages
 
-            if not usage and result.delta.usage:
+            if result.delta.usage:
                 usage = result.delta.usage
 
         if not usage:
@@ -379,7 +379,7 @@ class AppRunner:
                 queue_manager=queue_manager,
                 app_generate_entity=application_generate_entity,
                 prompt_messages=prompt_messages,
-                text="I apologize for any confusion, " "but I'm an AI assistant to be helpful, harmless, and honest.",
+                text="I apologize for any confusion, but I'm an AI assistant to be helpful, harmless, and honest.",
                 stream=application_generate_entity.stream,
             )
 

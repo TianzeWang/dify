@@ -1,5 +1,6 @@
 import logging
 from collections.abc import Generator
+from typing import Optional
 
 from volcenginesdkarkruntime.types.chat import ChatCompletion, ChatCompletionChunk
 
@@ -239,16 +240,14 @@ class VolcengineMaaSLargeLanguageModel(LargeLanguageModel):
 
         def _handle_stream_chat_response(chunks: Generator[ChatCompletionChunk]) -> Generator:
             for chunk in chunks:
-                if not chunk.choices:
-                    continue
-                choice = chunk.choices[0]
-
                 yield LLMResultChunk(
                     model=model,
                     prompt_messages=prompt_messages,
                     delta=LLMResultChunkDelta(
-                        index=choice.index,
-                        message=AssistantPromptMessage(content=choice.delta.content, tool_calls=[]),
+                        index=0,
+                        message=AssistantPromptMessage(
+                            content=chunk.choices[0].delta.content if chunk.choices else "", tool_calls=[]
+                        ),
                         usage=self._calc_response_usage(
                             model=model,
                             credentials=credentials,
@@ -257,7 +256,7 @@ class VolcengineMaaSLargeLanguageModel(LargeLanguageModel):
                         )
                         if chunk.usage
                         else None,
-                        finish_reason=choice.finish_reason,
+                        finish_reason=chunk.choices[0].finish_reason if chunk.choices else None,
                     ),
                 )
 
@@ -300,7 +299,7 @@ class VolcengineMaaSLargeLanguageModel(LargeLanguageModel):
         chunks = client.stream_chat(prompt_messages, **req_params)
         return _handle_stream_chat_response(chunks)
 
-    def get_customizable_model_schema(self, model: str, credentials: dict) -> AIModelEntity | None:
+    def get_customizable_model_schema(self, model: str, credentials: dict) -> Optional[AIModelEntity]:
         """
         used to define customizable model schema
         """

@@ -21,7 +21,12 @@ class AppParameterApi(InstalledAppResource):
         "options": fields.List(fields.String),
     }
 
-    system_parameters_fields = {"image_file_size_limit": fields.String}
+    system_parameters_fields = {
+        "image_file_size_limit": fields.Integer,
+        "video_file_size_limit": fields.Integer,
+        "audio_file_size_limit": fields.Integer,
+        "file_size_limit": fields.Integer,
+    }
 
     parameters_fields = {
         "opening_statement": fields.String,
@@ -43,7 +48,7 @@ class AppParameterApi(InstalledAppResource):
         """Retrieve app parameters."""
         app_model = installed_app.app
 
-        if app_model.mode in [AppMode.ADVANCED_CHAT.value, AppMode.WORKFLOW.value]:
+        if app_model.mode in {AppMode.ADVANCED_CHAT.value, AppMode.WORKFLOW.value}:
             workflow = app_model.workflow
             if workflow is None:
                 raise AppUnavailableError()
@@ -82,7 +87,12 @@ class AppParameterApi(InstalledAppResource):
                     }
                 },
             ),
-            "system_parameters": {"image_file_size_limit": dify_config.UPLOAD_IMAGE_FILE_SIZE_LIMIT},
+            "system_parameters": {
+                "image_file_size_limit": dify_config.UPLOAD_IMAGE_FILE_SIZE_LIMIT,
+                "video_file_size_limit": dify_config.UPLOAD_VIDEO_FILE_SIZE_LIMIT,
+                "audio_file_size_limit": dify_config.UPLOAD_AUDIO_FILE_SIZE_LIMIT,
+                "file_size_limit": dify_config.UPLOAD_FILE_SIZE_LIMIT,
+            },
         }
 
 
